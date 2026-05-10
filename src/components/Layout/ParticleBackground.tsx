@@ -4,16 +4,26 @@ import { loadSlim } from "@tsparticles/slim";
 
 const ParticleBackground = () => {
   const [init, setInit] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
-    initParticlesEngine(async (engine) => {
-      await loadSlim(engine);
-    }).then(() => {
-      setInit(true);
-    });
+    const initializeParticles = async () => {
+      try {
+        await initParticlesEngine(async (engine) => {
+          await loadSlim(engine);
+        });
+        setInit(true);
+      } catch (err) {
+        console.error("Particle engine initialization failed:", err);
+        setError(true);
+        // Particles are optional - don't break the app
+      }
+    };
+
+    initializeParticles();
   }, []);
 
-  if (!init) return <></>;
+  if (error || !init) return <div className="absolute inset-0 z-0" />;
 
   return (
     <Particles
